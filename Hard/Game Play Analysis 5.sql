@@ -45,6 +45,19 @@
 -- Player 2 installed the game on 2017-06-25 but didn't log back in on 2017-06-26 so the day 1 retention of 2017-06-25 is 0 / 1 = 0.00
 
 -- Solution
+
+with cte as(
+select * , COALESCE(lead(event_date) over(partition by player_id order by event_date),EVENT_date) as d1,row_number() over(partition by player_id order by event_date) as rn from playerstats
+),cte1 as(
+select * from cte where rn=1
+),cte2 as(
+select * from cte1 where event_date + 1 =d1 or event_date=d1
+)
+select event_date ,case when event_date !=d1 then round((select count(*) from cte1 bx1 where bx1.event_date=bx2.event_date and bx1.d1=bx2.d1)/(select count(*) from cte1 tx1 where tx1.event_date=bx2.event_date) ,2)
+else 0.00 end as Day1_retention from cte2 bx2 
+
+ or  
+ 
 with t1 as(
 select *,
 row_number() over(partition by player_id order by event_date) as rnk,
