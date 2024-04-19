@@ -76,6 +76,19 @@
 -- So, we only return the information of Student 2.
 
 -- Solution
+
+with cte as(
+SELECT min(score) as m1 ,max(Score) as m2 from exam
+),
+cte2 as (
+select student_id,min(score) as d1 ,max(score) as d2 from exam
+group by student_id
+)
+
+select cte2.student_id,student.student_name from cte2 join student on cte2.student_id =student.student_id where d1!=(Select m1 from cte) and d2!=(select m2 from cte)
+
+or 
+
 with t1 as(
 select student_id
 from
