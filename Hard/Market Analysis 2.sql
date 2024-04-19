@@ -88,6 +88,16 @@
 -- The answer for the user with id 4 is no because the brand of their second sold item is not their favorite brand.
 
 -- Solution
+
+with cte as(select *,row_number() over(partition by seller_id order by order_date) as r1 from orders )
+,cte2 as(
+select cte.seller_id,cte.item_id,items.item_brand from cte join items on cte.item_id=items.item_id where r1=2 )
+
+select u1.user_id ,case when (select item_brand from cte2 where cte2.seller_id=u1.user_id)=u1.favorite_brand then "Yes"
+else "NO" end as "2nd_item_fav_brand" from users u1
+
+ or 
+ 
 with t1 as(
 select user_id, 
 case when favorite_brand = item_brand then "yes"
